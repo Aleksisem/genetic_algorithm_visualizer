@@ -149,14 +149,14 @@ public class SimulationController {
       }
     });
     // Отрисовка особей
-    List<Entity> population = model.getPopulation();
+    Entity[] population = model.getPopulation();
     if (population != null) {
-      population.forEach(entity -> {
-      CanvasNodeDrawer drawer = drawers.get(entity.getClass());
-      if (drawer != null) {
-        drawer.draw(ctx, entity);
-      }
-    });
+      for (Entity entity : population) {
+        CanvasNodeDrawer drawer = drawers.get(entity.getClass());
+        if (drawer != null) {
+          drawer.draw(ctx, entity);
+        }
+      };
     } 
   }
   

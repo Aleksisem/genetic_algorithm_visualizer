@@ -35,5 +35,9 @@ public abstract class CanvasNode {
   public double distanceTo(Point2D pCoord) {
     return Math.hypot(pCoord.getX() - coordinate.getX(), pCoord.getY() - coordinate.getY());
   }
+  
+  public double distanceTo(CanvasNode node) {
+    return Math.hypot(node.getCoordinates().getX() - coordinate.getX(), node.getCoordinates().getY() - coordinate.getY());
+  }
    
 }

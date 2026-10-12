@@ -75,6 +75,10 @@ public class Entity extends Circle {
     setCoordinates(startCoord);
     updateGenes(genes); 
   }
+
+  public double getFitness(Point2D destinationPoint) {
+    return (isDestinationReached()) ? 1 : 1 / (1 + distanceTo(destinationPoint));
+  }
   
   private void updateGenes(List<Double> genes) {
     if (genes != null) {

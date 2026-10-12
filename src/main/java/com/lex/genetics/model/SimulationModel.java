@@ -2,6 +2,7 @@ package com.lex.genetics.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.lex.genetics.model.canvasNodes.CanvasNode;
 import com.lex.genetics.model.canvasNodes.DestinationPoint;
@@ -29,8 +30,10 @@ public class SimulationModel {
   private boolean nodeDragging = false;
   private CanvasNode selectedNode;
   private Canvas canvas;
+  private final Random random = new Random();
+  private final int selectionTournamentSize = 3;
   
-  private List<Entity> population;
+  private Entity[] population;
   private int generationVersion = 0;
   private int stepsInIteration = 0;
   private SpawnPoint spawnPoint;
@@ -41,23 +44,23 @@ public class SimulationModel {
   }
   
   public void generateNewPopulation() {
-    population = new ArrayList<>(getPopulationSize());
+    population = new Entity[getPopulationSize()];
     for (int i = 0; i < getPopulationSize(); i++) {
-      population.add(new Entity(
+      population[i] = new Entity(
         spawnPoint.getCoordinates(), 
         new Shape(
           new Point2D(canvas.getLayoutX(), canvas.getLayoutY()),
           new Point2D(canvas.getLayoutX() + canvas.getWidth(), canvas.getLayoutX() + canvas.getHeight())
         ), 
         getGenesLength()
-      ));
+      );
     } 
   }
   
   public void populationMove() {
-    population.forEach(entity -> {
+    for (Entity entity : population) {
       entity.move(destinationPoint);
-    });
+    }
     increaseStepsInIteration();
   }
   
@@ -76,6 +79,60 @@ public class SimulationModel {
     this.destinationPoint = destinationPoint;
     generationVersion = 0;
     stepsInIteration = 0;
+  }
+ 
+  private void beginEvolution() {
+    // Вычисление значения функции приспособленности для каждой особи
+    double[] populationFitness = new double[population.length];
+    for (int i = 0; i < population.length; i++) {
+      double fitness = population[i].getFitness(destinationPoint.getCoordinates());
+      populationFitness[i] = fitness;
+    }
+
+    // Получение следующего поколение размера, равному родительскому
+    Entity[] newPopulation = new Entity[population.length];
+    for (int i = 0; i < population.length; i++) {
+      // 1. Отбор
+      Entity parent1 = selectionTournament(populationFitness, selectionTournamentSize); 
+      Entity parent2 = selectionTournament(populationFitness, selectionTournamentSize); 
+      
+      // 2. Скрещивание
+      Entity child = crossover(parent1, parent2);
+
+      // 3. Мутация
+      child = mutateEntity(child); 
+      
+      // Добавление потомка в новое поколение
+      newPopulation[i] = child;
+    }
+  }
+
+  private Entity selectionTournament(double[] populationFitness, int size) {
+    int bestEntityIndex = -1; 
+    while (size > 0) {
+      // Выбираем случайное значение из массива значений функций приспособленности
+      int randomIndex = random.nextInt(0, populationFitness.length);
+      // Пропускаем цикл, если индекс лучшей особи совпадает
+      if (randomIndex == bestEntityIndex) continue;
+      // Если индекс лучшей особи ещё не выбран или значение фитнес-функции особи по сгенерированному индексу выше сохранённого
+      if (bestEntityIndex < 0 || populationFitness[randomIndex] > populationFitness[bestEntityIndex]) {
+        bestEntityIndex = randomIndex; 
+      }
+      size -= 1;
+    }
+    return population[bestEntityIndex]; 
+  }
+  
+  private Entity crossover(Entity parent1, Entity parent2) {
+    // TODO: реализовать операцию скрещивания
+    Entity child = parent1;
+    return child;
+  }
+  
+  private Entity mutateEntity(Entity entity) {
+    // TODO: реализовать операцию мутации
+    Entity mutatedEntity = entity;
+    return mutatedEntity;    
   }
 
   public int getGenesLength() {
@@ -168,9 +225,9 @@ public class SimulationModel {
   }
   public void stopSimulation() {
     setSimulationState(SimulationState.STOPPED);
-    population.forEach(entity -> {
+    for (Entity entity : population) {
       entity.stop();
-    });
+    }
   }
 
   public void resetSimulation() {
@@ -205,10 +262,10 @@ public class SimulationModel {
     selectedNode = null;
   }
 
-  public List<Entity> getPopulation() {
+  public Entity[] getPopulation() {
     return population;
   }
-  public void setPopulation(List<Entity> population) {
+  public void setPopulation(Entity[] population) {
     this.population = population;
   }
   private void clearPopulation() {
