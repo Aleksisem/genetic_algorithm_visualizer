@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.lex.genetics.model.Shape;
+import com.lex.genetics.model.CanvasBorder;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public class Entity extends Circle {
-  public static final double VELOCITY = 4.0;
+  public static final double VELOCITY = 5.0;
   public static final double RADIUS = 3.0;
   public static final Color COLOR = EntityColor.MOVING.getColor();
   private final Random random = new Random();
@@ -21,18 +21,26 @@ public class Entity extends Circle {
   private boolean destinationReached = false;
   private int currentGeneIdx = 0;
 
-  public Entity(Point2D coord, Shape canvas, List<Double> genes) {
+  public Entity(Point2D coord, CanvasBorder canvas, List<Double> genes) {
     super(coord, canvas, RADIUS, COLOR);
     startCoord = coord;
     this.genes = genes;
     genesLength = genes.size();
   }
 
-  public Entity(Point2D coord, Shape canvas, int genesLength) {
+  public Entity(Point2D coord, CanvasBorder canvas, int genesLength) {
     super(coord, canvas, RADIUS, COLOR);
     startCoord = coord;
     this.genesLength = genesLength;
     this.genes = generateRandomGenes(genesLength);
+  }
+  
+  public List<Double> getGenes() {
+    return genes;
+  }
+  
+  public int getGenesLength() {
+    return genesLength;
   }
   
   public boolean isDestinationReached() {
@@ -49,9 +57,9 @@ public class Entity extends Circle {
 
     setColor(EntityColor.MOVING.getColor());
     double angle = genes.get(currentGeneIdx);
-    double x = getCoordinates().getX() + Math.cos(angle) * VELOCITY;
-    double y = getCoordinates().getY() + Math.sin(angle) * VELOCITY;
-    setCoordinates(new Point2D(
+    double x = getCoordinate().getX() + Math.cos(angle) * VELOCITY;
+    double y = getCoordinate().getY() + Math.sin(angle) * VELOCITY;
+    setCoordinate(new Point2D(
       Math.max(RADIUS, Math.min(canvas.getWidth() - RADIUS, x)),
       Math.max(RADIUS, Math.min(canvas.getHeight() - RADIUS, y))       
     ));
@@ -72,7 +80,7 @@ public class Entity extends Circle {
   }
   
   public void reset(List<Double> genes) {
-    setCoordinates(startCoord);
+    setCoordinate(startCoord);
     updateGenes(genes); 
   }
 
@@ -93,8 +101,8 @@ public class Entity extends Circle {
   
   private void checkDestinationReached(DestinationPoint destinationPoint) {
     double distance = Math.sqrt(
-      Math.pow(getCoordinates().getX() - destinationPoint.getCoordinates().getX(), 2) 
-      + Math.pow(getCoordinates().getY() - destinationPoint.getCoordinates().getY(), 2)
+      Math.pow(getCoordinate().getX() - destinationPoint.getCoordinate().getX(), 2) 
+      + Math.pow(getCoordinate().getY() - destinationPoint.getCoordinate().getY(), 2)
     );
     if (distance < destinationPoint.getRadius()) {
       markAsReached(); 
@@ -107,5 +115,12 @@ public class Entity extends Circle {
       newGenes.add(random.nextDouble() * 2 * Math.PI);
     }
     return newGenes;
+  }
+
+  public void swapGenes(int index1, int index2) {
+    if (index1 == index2) return;
+    double temp = genes.get(index1);
+    genes.set(index1, genes.get(index2));
+    genes.set(index2, temp);
   }
 }

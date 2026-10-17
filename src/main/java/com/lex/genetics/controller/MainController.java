@@ -1,5 +1,6 @@
 package com.lex.genetics.controller;
 
+import com.lex.genetics.model.CanvasBorder;
 import com.lex.genetics.model.CanvasTool;
 import com.lex.genetics.model.SimulationModel;
 import com.lex.genetics.model.SimulationState;
@@ -63,7 +64,10 @@ public class MainController {
   public void initialize() {
     ctx = canvas.getGraphicsContext2D();
 
-    model = new SimulationModel(canvas);
+    model = new SimulationModel(new CanvasBorder(
+      new Point2D(canvas.getLayoutX(), canvas.getLayoutY()),
+      new Point2D(canvas.getLayoutX() + canvas.getWidth(), canvas.getLayoutX() + canvas.getHeight())
+    ));
     simulationController = new SimulationController(ctx, model);
 
     genesLengthSlider.valueProperty().bindBidirectional(model.genesLengthProperty()); 
@@ -78,9 +82,6 @@ public class MainController {
     elitismQuantityLabel.textProperty().bind(model.elitismQuantityProperty().asString());
     
     startButton.textProperty().bind(
-      // Bindings.when(model.simulationStateProperty().isEqualTo(SimulationState.RUNNING))
-      // .then("Стоп")
-      // .otherwise("Старт")
       Bindings.createStringBinding(() -> {
         switch (model.getSimulationState()) {
           case RUNNING:
@@ -107,9 +108,6 @@ public class MainController {
           model.setActiveCanvasTool(selectedTool);
         }
       } 
-    });
-    model.activeCanvasToolProperty().addListener((observable, oldValue, newValue) -> {
-      // TODO: изменить курсор
     });
   }
   
@@ -149,12 +147,14 @@ public class MainController {
   private void handleCanvasMousePressed(MouseEvent event) {
     System.out.println("Mouse pressing event invoked");
     CanvasTool tool = model.getActiveCanvasTool();
-    
+    System.out.printf("Active canvas tool: %s\n", tool.toString()); 
+
     switch (tool) {
       case MOVE:
         simulationController.selectNode(new Point2D(event.getX(), event.getY())); 
         break;
       case DRAW:
+        simulationController.initializeObstacle(new Point2D(event.getX(), event.getY()));
         break;
       case REMOVE:
         break;
@@ -163,7 +163,6 @@ public class MainController {
 
   @FXML
   private void handleCanvasMouseDragged(MouseEvent event) {
-    System.out.println("Mouse dragging event invoked");
     CanvasTool tool = model.getActiveCanvasTool();
 
     switch (tool) {
@@ -171,6 +170,7 @@ public class MainController {
         simulationController.startNodeDragging(new Point2D(event.getX(), event.getY())); 
         break;
       case DRAW:
+        simulationController.drawObstacle(new Point2D(event.getX(), event.getY()));
         break;
       case REMOVE:
         break;
@@ -181,14 +181,16 @@ public class MainController {
   private void handleCanvasMouseReleased(MouseEvent event) {
     System.out.println("Mouse released");
     CanvasTool tool = model.getActiveCanvasTool();
-
+    
     switch (tool) {
       case MOVE:
         simulationController.stopNodeDragging(); 
         break;
       case DRAW:
+        simulationController.createObstacle(new Point2D(event.getX(), event.getY()));
         break;
       case REMOVE:
+        simulationController.removeObstacle(new Point2D(event.getX(), event.getY()));
         break;
     }
   }

@@ -2,11 +2,11 @@ package com.lex.genetics.model;
 
 import javafx.geometry.Point2D;
 
-public class Shape {
+public class CanvasBorder {
   public Point2D minCoord;
   public Point2D maxCoord;
 
-  public Shape(Point2D minCoord, Point2D maxCoord) {
+  public CanvasBorder(Point2D minCoord, Point2D maxCoord) {
     this.minCoord = minCoord;
     this.maxCoord = maxCoord;
   }

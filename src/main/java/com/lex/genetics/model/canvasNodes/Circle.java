@@ -1,6 +1,7 @@
 package com.lex.genetics.model.canvasNodes;
 
-import com.lex.genetics.model.Shape;
+import com.lex.genetics.Utils;
+import com.lex.genetics.model.CanvasBorder;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
@@ -8,7 +9,7 @@ import javafx.scene.paint.Color;
 public class Circle extends CanvasNode {
   private double radius;
   
-  public Circle(Point2D coord, Shape canvas, double radius, Color color) {
+  public Circle(Point2D coord, CanvasBorder canvas, double radius, Color color) {
     super(coord, canvas, color);
     this.radius = radius;
   }
@@ -31,5 +32,14 @@ public class Circle extends CanvasNode {
   }
   public void setRadius(double radius) {
     this.radius = radius; 
+  }
+  
+  @Override
+  public boolean collideWithNode(CanvasNode node) {
+    boolean isCollide = false;
+    if (node instanceof Rectangle) {
+      Utils.isRectangleCollideWithCircle((Rectangle) node, this);
+    }
+    return isCollide;
   }
 }

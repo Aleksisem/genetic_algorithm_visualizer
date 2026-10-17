@@ -1,25 +1,27 @@
 package com.lex.genetics.model.canvasNodes;
 
-import com.lex.genetics.model.Shape;
+import com.lex.genetics.model.CanvasBorder;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public abstract class CanvasNode {
   private Point2D coordinate; 
+  private Color defaultColor;
   private Color color;
-  Shape canvas;
+  CanvasBorder canvas;
 
-  public CanvasNode(Point2D coord, Shape canvas, Color color) {
+  public CanvasNode(Point2D coord, CanvasBorder canvas, Color color) {
     this.coordinate = coord;
+    this.defaultColor = color;
     this.color = color;
     this.canvas = canvas;
   }
   
-  public Point2D getCoordinates() {
+  public Point2D getCoordinate() {
     return coordinate;
   }
-  public void setCoordinates(Point2D coord) {
+  public void setCoordinate(Point2D coord) {
     coordinate = calculateNewCoord(coord);
   }
   public Color getColor() {
@@ -27,6 +29,10 @@ public abstract class CanvasNode {
   }
   public void setColor(Color color) {
     this.color = color;
+  }
+  
+  public Color getDefaultColor() {
+    return this.defaultColor;
   }
 
   public abstract boolean contains(Point2D pCoord);
@@ -37,7 +43,17 @@ public abstract class CanvasNode {
   }
   
   public double distanceTo(CanvasNode node) {
-    return Math.hypot(node.getCoordinates().getX() - coordinate.getX(), node.getCoordinates().getY() - coordinate.getY());
+    return Math.hypot(node.getCoordinate().getX() - coordinate.getX(), node.getCoordinate().getY() - coordinate.getY());
+  }
+  
+  public abstract boolean collideWithNode(CanvasNode node);
+  
+  public void setCollisionColor() {
+    color = Color.RED;
+  } 
+
+  public void resetCollisionColor() {
+    color = getDefaultColor();
   }
    
 }
